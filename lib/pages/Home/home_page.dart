@@ -20,7 +20,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    listenToAndroidData();
+    listenToChannelData();
   }
 
   @override
@@ -55,8 +55,8 @@ class _HomePageState extends State<HomePage> {
               TextButton(
                   onPressed: () {
                     log('Enviando data desde Flutter');
-                    sendDataToAndroid(textCotroller.text.isEmpty
-                        ? 'Data from Flutte with empty messager'
+                    sendDataToChannel(textCotroller.text.isEmpty
+                        ? 'Data from Flutter with empty messager'
                         : textCotroller.text);
                   },
                   child: const Text('Send Data')),
@@ -67,15 +67,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void sendDataToAndroid(String data) async {
+  void sendDataToChannel(String data) async {
     final x = await channel.invokeMethod('sendDataToAndroid', data);
 
     showSimpleSnackBar(context, x.toString());
 
     await Future.delayed(const Duration(seconds: 2));
+
+    SystemNavigator.pop();
   }
 
-  void listenToAndroidData() {
+  void listenToChannelData() {
     channel.setMethodCallHandler((MethodCall call) async {
       if (call.method == 'sendDataToFlutter') {
         String data = call.arguments;

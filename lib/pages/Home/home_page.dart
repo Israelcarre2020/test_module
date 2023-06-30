@@ -3,19 +3,17 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-
-import '../../core/utils/test_methods.dart';
 import 'package:flutter/services.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  final textCotroller = TextEditingController();
+  final textController = TextEditingController();
 
   @override
   void initState() {
@@ -27,52 +25,80 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('Home Page'),
-          const Text('Poc Flutter Inside Native With Project'),
-          const SizedBox(height: 20),
-          Column(
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                child: TextFormField(
-                  controller: textCotroller,
-                  decoration: const InputDecoration(
-                    border: UnderlineInputBorder(),
-                    labelText: 'Enter your username',
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Home Page',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Poc Flutter Inside Native With Project',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.blue,
+              ),
+            ),
+            const SizedBox(height: 40),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextFormField(
+                controller: textController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                  labelText: 'Enter a message to send to native platFom',
+                  fillColor: Colors.white,
+                  filled: true,
                 ),
               ),
-              const SizedBox(height: 20),
-              TextButton(
-                  onPressed: () {
-                    showSimpleSnackBar(context, 'Simple Message');
-                  },
-                  child: const Text('Show SnackBar')),
-              TextButton(
-                  onPressed: () {
-                    log('Enviando data desde Flutter');
-                    sendDataToChannel(textCotroller.text.isEmpty
-                        ? 'Data from Flutter with empty messager'
-                        : textCotroller.text);
-                  },
-                  child: const Text('Send Data')),
-            ],
-          )
-        ],
-      )),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                showSimpleSnackBar(context, 'Simple Message');
+              },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: const Text('Show SnackBar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                log('Enviando data desde Flutter');
+                sendDataToChannel(textController.text.isEmpty
+                    ? 'Data from Flutter with empty message'
+                    : textController.text);
+              },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: const Text('Send Data'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   void sendDataToChannel(String data) async {
-    final x = await channel.invokeMethod('sendDataToAndroid', data);
+    final result = await channel.invokeMethod('sendDataToAndroid', data);
 
-    showSimpleSnackBar(context, x.toString());
-
-    await Future.delayed(const Duration(seconds: 2));
+    showSimpleSnackBar(context, result.toString());
 
     SystemNavigator.pop();
   }
@@ -84,6 +110,12 @@ class _HomePageState extends State<HomePage> {
         showSimpleSnackBar(context, data);
       }
     });
+  }
+
+  void showSimpleSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 }
 
